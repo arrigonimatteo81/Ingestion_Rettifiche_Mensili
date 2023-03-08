@@ -12,9 +12,10 @@ from DbUtils.DbSourceMySql import DbSourceMySql
 
 class BuilderRectificationDefault:
     table = ""
-    count_key = 0
+
 
     def __init__(self, etl_request: EtlRequest):
+
         self.etlRequest = etl_request
         self.banca = self.etlRequest.semaforo.abi
         self.provenienza = self.etlRequest.semaforo.provenienza
@@ -24,18 +25,17 @@ class BuilderRectificationDefault:
         self.dbConf = DbConfPostgres(config)
         self.dbSource = DbSourceMySql(self.dbConf.getSourceParameters(self.table))
         self.spark_parameters = self.dbConf.getSparkParameters(self.table)
-        self.query_ingestion = self.getQueryIngest()
+        self.query_ingestion, self.count_key = self.getQueryIngest
         self.additional_where = self.dbConf.getAdditionalWhere(self.table)
         self.num_partitions = self.dbConf.getNumPartitions(self.table)
         self.ingestion_table = self.dbConf.getIngestionTable(self.table)
-        self.query_count = self.dbConf.getCountQuery(self.table)
 
     def ingest(self):
         try:
             logging.info(f"Start ingestion table {self.table}")
             df_source = read_data_from_source(self.spark_parameters,
                                               query_ingestion=self.query_ingestion,
-                                              elements_count=self.getCount(),
+                                              elements_count=self.count_key,
                                               num_partitions=self.num_partitions)
             # aggiungo le colonne id_processo, cod_id_utente_rett(None) e cod_id_file_rett al dataframe
             df_source = df_source.withColumn("id_processo", lit(self.etlRequest.processId))
@@ -50,17 +50,10 @@ class BuilderRectificationDefault:
             raise e
 
     def getQueryIngest(self):
-        first_where_condition = self.buildWhereConditionFromIdFile()
-        if self.count_key == 0:
-            where_cond = " WHERE 1=0 "  # NON DEVE TIRARE FUORI NIENTE, NON CI SONO RIGHE DEL PERIODO IN ELABORAZIONE
-        else:
-            where_cond = "WHERE" + " or ".join(first_where_condition)
+        where_cond, count = self.buildWhereConditionFromIdFile
 
         return self.query_ingestion.format(where_condition=where_cond,
-                                           additional_where=self.additional_where)
-
-    def getCount(self):
-        pass
+                                           additional_where=self.additional_where), count
 
     def buildWhereConditionFromIdFile(self):
         pass
