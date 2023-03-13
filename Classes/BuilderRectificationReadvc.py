@@ -25,6 +25,27 @@ def scomponiRiga(riga):
             )
 
 
+def generaQueryInsert(self, listValue):
+    query = "insert into " + self.ingestion_table + " (BANCA, COD_UO, NUM_PARTITA, " \
+            "PERIODO_RIF, PTF_SPECCHIO, PROVN, COD_PRODOTTO, TIPO_OPERAZIONE, CANALE, " \
+            "PRODOTTO_COMM, PORTAFOGLIO, DESK_RENDICONTATIVO, CODICE, VALORE, PERIODO_COMP, " \
+            "ID_PROCESSO, COD_ID_UTENTE_RETT, COD_ID_FILE_RETT) values ("
+
+    mySeparator = "','"
+    query = query + "'"
+    query = query + mySeparator.join(listValue)
+    query = query + "','"
+
+    # dobbiamo aggiungere periodo_comp
+    # id_processo, utente_rett e id_file_rett
+    query = query + "'" + listValue[3] + "',"
+    query = query + "'" + lit(self.etlRequest.processId) + "',"
+    query = query + "'" + lit(None).cast(StringType()) + "',"
+    query = query + "'" + lit(self.id_file) + "',"
+
+    return query
+
+
 class BuilderRectificationReadvc(BuilderRectificationDefault):
     table = "READVC_RECT"
 
@@ -37,6 +58,10 @@ class BuilderRectificationReadvc(BuilderRectificationDefault):
             rows = self.dbSource.returnQueryContent(
                 f"SELECT RecInput,DatiOut from REAEX6 where idFile = '{self.id_file}'")
             dig = list(map(lambda l: scomponiRiga(l), rows))
+            # codice da tenere commentato, serve solo per fare alcuni test
+            # di performance per vedere quale insert sia piu veloce
+            # genera la query di insert
+            # query = map(lambda l: generaQueryInsert(l), dig)
 
             schema = StructType() \
                 .add("BANCA", IntegerType(), True) \
