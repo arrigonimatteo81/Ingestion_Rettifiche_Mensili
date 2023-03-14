@@ -9,7 +9,7 @@ from Etl.EtlResponse import EtlResponse
 from SparkUtils.spark_utils import create_dataframe, write_data_to_target
 
 
-def scomponiRiga(riga):
+def scomponiRiga(riga) -> tuple[int, str, str, int, str, str, str, str, str, str, str, str, str, float]:
     return (int(riga[0][2: 7]), str(riga[0][7: 12]), str(riga[0][12: 36]),
             int(re.search("(PERIODO=([a-zA-Z0-9_.+-])*)", riga[1]).group(1).split("=")[1]),
             re.search("(PTF_SPECCHIO=([a-zA-Z0-9_.€+-])*)", riga[1]).group(1).split("=")[1],
@@ -29,8 +29,10 @@ class BuilderRectificationReadvc(BuilderRectificationDefault):
     table = "READVC_RECT"
 
     def getQueryIngest(self) -> tuple[str, int]:
-        # TODO vedere cosa meglio: return ("",0) oppure "pass"
-        pass
+        # TODO vedere cosa meglio:
+        return "", 0
+        # TODO oppure
+        #pass
 
     def ingest(self):
         try:

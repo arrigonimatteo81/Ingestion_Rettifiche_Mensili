@@ -25,8 +25,7 @@ class BuilderRectificationDefault:
         self.dbConf = DbConfPostgres(config)
         self.dbSource = DbSourceMySql(self.dbConf.getSourceParameters(self.table))
         self.spark_parameters = self.dbConf.getSparkParameters(self.table)
-        self.query_ingestion = self.getQueryIngest()[0]
-        self.count_elems = self.getQueryIngest()[1]
+        self.query_ingestion, self.count_elems = self.getQueryIngest()
         self.additional_where = self.dbConf.getAdditionalWhere(self.table)
         self.num_partitions = self.dbConf.getNumPartitions(self.table)
         self.ingestion_table = self.dbConf.getIngestionTable(self.table)
