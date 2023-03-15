@@ -1,14 +1,16 @@
+from typing import Any
+
 from Classes.BuilderRectificationDefault import BuilderRectificationDefault
 from Etl.EtlRequest import EtlRequest
 from dateutil.relativedelta import relativedelta
 from datetime import datetime
 
 
-def scomponiRiga(riga):
+def scomponiRiga(riga: tuple[Any]):
     return riga[0][2: 7], riga[0][7: 12], riga[0][12: 36], int(riga[0][36: 42])
 
 
-def componiStringa(riga):
+def componiStringa(riga: tuple[Any, Any, Any, int]):
     return f"(readdr.banca='{riga[0]}' and readdr.cod_uo='{riga[1]}' and readdr.num_partita='{riga[2]}' " \
            f"and readdr.periodo_rif={riga[3]})"
 

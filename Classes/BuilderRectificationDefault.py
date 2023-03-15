@@ -45,16 +45,13 @@ class BuilderRectificationDefault:
                 write_data_to_target(df_source=df_source, table=self.ingestion_table)
                 logging.info(f"End ingestion table {self.table}")
                 return EtlResponse(processId=self.etlRequest.processId, status="OK")
-                # return df_source
             else:
                 logging.info(f"End ingestion table {self.table} with NO DATA")
                 return EtlResponse(processId=self.etlRequest.processId, status="OK - NO DATA TO PROCESS")
-                # return empty_dataframe()
         except Exception as e:
             logging.error(e)
             logging.error(f"Error in ingest rectification while ingesting {self.table}")
             return EtlResponse(processId=self.etlRequest.processId, status="KO", error=e)
-            # raise e
 
     def getQueryIngest(self) -> tuple[str, int]:
         where_cond, count = self.buildWhereConditionFromIdFile

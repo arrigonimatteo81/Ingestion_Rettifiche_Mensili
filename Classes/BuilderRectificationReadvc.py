@@ -1,5 +1,6 @@
 import logging
 import re
+from typing import Any
 
 from pyspark.sql.functions import when, col, regexp_replace, lit
 from pyspark.sql.types import StructType, StringType, FloatType, IntegerType
@@ -9,7 +10,7 @@ from Etl.EtlResponse import EtlResponse
 from SparkUtils.spark_utils import create_dataframe, write_data_to_target
 
 
-def scomponiRiga(riga) -> tuple[int, str, str, int, str, str, str, str, str, str, str, str, str, float]:
+def scomponiRiga(riga: tuple[Any, Any]) -> tuple[int, str, str, int, str, str, str, str, str, str, str, str, str, float]:
     return (int(riga[0][2: 7]), str(riga[0][7: 12]), str(riga[0][12: 36]),
             int(re.search("(PERIODO=([a-zA-Z0-9_.+-])*)", riga[1]).group(1).split("=")[1]),
             re.search("(PTF_SPECCHIO=([a-zA-Z0-9_.€+-])*)", riga[1]).group(1).split("=")[1],
@@ -25,7 +26,8 @@ def scomponiRiga(riga) -> tuple[int, str, str, int, str, str, str, str, str, str
             )
 
 
-def componiStringa(riga, process_id, file_id):
+def componiStringa(riga: tuple[int, str, str, int, str, str, str, str, str, str, str, str, str, float], process_id,
+                   file_id):
     if riga[7].startswith("__"):
         periodo_comp = riga[7].replace("__", "20")
     else:
@@ -92,7 +94,7 @@ class BuilderRectificationReadvc(BuilderRectificationDefault):
             return EtlResponse(processId=self.etlRequest.processId, status="KO", error=e)
 
     def generaQueryInsert(self, list_value):
-        query = "insert into " + self.ingestion_table + " (BANCA, COD_UO, NUM_PARTITA, " \
+        query = f"insert into {self.ingestion_table} (BANCA, COD_UO, NUM_PARTITA, " \
                                                         "PERIODO_RIF, PTF_SPECCHIO, PROVN, COD_PRODOTTO, " \
                                                         "TIPO_OPERAZIONE, CANALE, " \
                                                         "PRODOTTO_COMM, PORTAFOGLIO, DESK_RENDICONTATIVO, CODICE, " \
