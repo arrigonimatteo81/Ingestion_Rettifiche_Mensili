@@ -8,6 +8,7 @@ from pyspark.sql.types import StructType, StringType, FloatType, IntegerType
 from Classes.BuilderRectificationDefault import BuilderRectificationDefault
 from Etl.EtlResponse import EtlResponse
 from SparkUtils.spark_utils import create_dataframe, write_data_to_target
+from constants import TAB_READVC_RECT
 
 
 def scomponiRiga(riga: tuple[Any, Any]) -> tuple[int, str, str, int, str, str, str, str, str, str, str, str, str, float]:
@@ -39,7 +40,7 @@ def componiStringa(riga: tuple[int, str, str, int, str, str, str, str, str, str,
 
 
 class BuilderRectificationReadvc(BuilderRectificationDefault):
-    table = "READVC_RECT"
+    table = TAB_READVC_RECT
 
     def getQueryIngest(self) -> tuple[str, int]:
         # TODO vedere cosa meglio:

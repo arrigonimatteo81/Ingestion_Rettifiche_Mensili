@@ -9,6 +9,7 @@ from DbUtils.DbSourceMySql import DbSourceMySql
 from Etl import EtlRequest
 from Etl.EtlResponse import EtlResponse
 from SparkUtils.spark_utils import read_data_from_source, write_data_to_target
+from constants import ID_PROCESSO, COD_ID_FILE_RETT, COD_ID_UTENTE_RETT
 
 
 class BuilderRectificationDefault:
@@ -39,9 +40,9 @@ class BuilderRectificationDefault:
                                                   elements_count=self.count_elems,
                                                   num_partitions=self.num_partitions)
                 # aggiungo le colonne id_processo, cod_id_utente_rett(None) e cod_id_file_rett al dataframe
-                df_source = df_source.withColumn("ID_PROCESSO", lit(self.etlRequest.processId))\
-                    .withColumn("COD_ID_UTENTE_RETT", lit(None).cast(StringType()))\
-                    .withColumn("COD_ID_FILE_RETT", lit(self.id_file))
+                df_source = df_source.withColumn(ID_PROCESSO, lit(self.etlRequest.processId))\
+                    .withColumn(COD_ID_UTENTE_RETT, lit(None).cast(StringType()))\
+                    .withColumn(COD_ID_FILE_RETT, lit(self.id_file))
                 write_data_to_target(df_source=df_source, table=self.ingestion_table)
                 logging.info(f"End ingestion table {self.table}")
                 return EtlResponse(processId=self.etlRequest.processId, status="OK")

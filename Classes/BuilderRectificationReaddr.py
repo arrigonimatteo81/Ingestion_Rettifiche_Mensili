@@ -5,6 +5,8 @@ from Etl.EtlRequest import EtlRequest
 from dateutil.relativedelta import relativedelta
 from datetime import datetime
 
+from constants import TAB_READDR_RECT
+
 
 def scomponiRiga(riga: tuple[Any]):
     return riga[0][2: 7], riga[0][7: 12], riga[0][12: 36], int(riga[0][36: 42])
@@ -16,7 +18,7 @@ def componiStringa(riga: tuple[Any, Any, Any, int]):
 
 
 class BuilderRectificationReaddr(BuilderRectificationDefault):
-    table = "READDR_RECT"
+    table = TAB_READDR_RECT
 
     def __init__(self, etl_request: EtlRequest):
         super().__init__(etl_request)

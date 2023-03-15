@@ -4,6 +4,7 @@ from dateutil.relativedelta import relativedelta
 from datetime import datetime
 from Classes.BuilderRectificationDefault import BuilderRectificationDefault
 from Etl.EtlRequest import EtlRequest
+from constants import TAB_REAGDG_RECT
 
 
 def scomponiRiga(riga: tuple[Any]):
@@ -15,7 +16,7 @@ def componiStringa(riga: tuple[Any, Any, int]):
 
 
 class BuilderRectificationReagdg(BuilderRectificationDefault):
-    table = "REAGDG_RECT"
+    table = TAB_REAGDG_RECT
 
     def __init__(self, etl_request: EtlRequest):
         super().__init__(etl_request)
