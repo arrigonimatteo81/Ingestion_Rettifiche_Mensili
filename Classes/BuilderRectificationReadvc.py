@@ -91,12 +91,12 @@ class BuilderRectificationReadvc(BuilderRectificationDefault):
             logging.error(f"Error in ingest rectification while ingesting {self.table}")
             return EtlResponse(processId=self.etlRequest.processId, status="KO", error=e)
 
-    def generaQueryInsert(self, listValue):
+    def generaQueryInsert(self, list_value):
         query = "insert into " + self.ingestion_table + " (BANCA, COD_UO, NUM_PARTITA, " \
                                                         "PERIODO_RIF, PTF_SPECCHIO, PROVN, COD_PRODOTTO, " \
                                                         "TIPO_OPERAZIONE, CANALE, " \
                                                         "PRODOTTO_COMM, PORTAFOGLIO, DESK_RENDICONTATIVO, CODICE, " \
                                                         "VALORE, PERIODO_COMP, " \
                                                         "ID_PROCESSO, COD_ID_FILE_RETT) values "
-        dag = list(map(lambda t: componiStringa(t, self.etlRequest.processId, self.id_file), listValue))
+        dag = list(map(lambda t: componiStringa(t, self.etlRequest.processId, self.id_file), list_value))
         return query + ",".join(dag)
