@@ -25,25 +25,15 @@ def scomponiRiga(riga) -> tuple[int, str, str, int, str, str, str, str, str, str
             )
 
 
-def generaQueryInsert(self, listValue):
-    query = "insert into " + self.ingestion_table + " (BANCA, COD_UO, NUM_PARTITA, " \
-            "PERIODO_RIF, PTF_SPECCHIO, PROVN, COD_PRODOTTO, TIPO_OPERAZIONE, CANALE, " \
-            "PRODOTTO_COMM, PORTAFOGLIO, DESK_RENDICONTATIVO, CODICE, VALORE, PERIODO_COMP, " \
-            "ID_PROCESSO, COD_ID_UTENTE_RETT, COD_ID_FILE_RETT) values ("
+def componiStringa(riga, process_id, file_id):
+    if riga[7].startswith("__"):
+        periodo_comp = riga[7].replace("__", "20")
+    else:
+        periodo_comp = riga[3]
 
-    mySeparator = "','"
-    query = query + "'"
-    query = query + mySeparator.join(listValue)
-    query = query + "','"
-
-    # dobbiamo aggiungere periodo_comp
-    # id_processo, utente_rett e id_file_rett
-    query = query + "'" + listValue[3] + "',"
-    query = query + "'" + lit(self.etlRequest.processId) + "',"
-    query = query + "'" + lit(None).cast(StringType()) + "',"
-    query = query + "'" + lit(self.id_file) + "',"
-
-    return query
+    return f"('{riga[0]}','{riga[1]}','{riga[2]}',{riga[3]},'{riga[4]}','{riga[5]}','{riga[6]}','{riga[7]}'," \
+           f"'{riga[8]}','{riga[9]}','{riga[10]}','{riga[11]}','{riga[12]}',{riga[13]},{periodo_comp}," \
+           f"'{process_id}', '{file_id}'"
 
 
 class BuilderRectificationReadvc(BuilderRectificationDefault):
@@ -53,7 +43,7 @@ class BuilderRectificationReadvc(BuilderRectificationDefault):
         # TODO vedere cosa meglio:
         return "", 0
         # TODO oppure
-        #pass
+        # pass
 
     def ingest(self):
         try:
@@ -100,3 +90,13 @@ class BuilderRectificationReadvc(BuilderRectificationDefault):
             logging.error(e)
             logging.error(f"Error in ingest rectification while ingesting {self.table}")
             return EtlResponse(processId=self.etlRequest.processId, status="KO", error=e)
+
+    def generaQueryInsert(self, listValue):
+        query = "insert into " + self.ingestion_table + " (BANCA, COD_UO, NUM_PARTITA, " \
+                                                        "PERIODO_RIF, PTF_SPECCHIO, PROVN, COD_PRODOTTO, " \
+                                                        "TIPO_OPERAZIONE, CANALE, " \
+                                                        "PRODOTTO_COMM, PORTAFOGLIO, DESK_RENDICONTATIVO, CODICE, " \
+                                                        "VALORE, PERIODO_COMP, " \
+                                                        "ID_PROCESSO, COD_ID_FILE_RETT) values "
+        dag = list(map(lambda t: componiStringa(t, self.etlRequest.processId, self.id_file), listValue))
+        return query + ",".join(dag)
