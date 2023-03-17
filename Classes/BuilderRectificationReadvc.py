@@ -76,16 +76,14 @@ class BuilderRectificationReadvc(BuilderRectificationDefault):
 
             first_df = create_dataframe(dig, schema)
 
-            df_source = first_df.withColumn("PERIODO_COMP", when((col("TIPO_OPERAZIONE").startswith('__')),
-                                                                 regexp_replace(col("TIPO_OPERAZIONE"), '__',
-                                                                                '20').cast(
-                                                                     IntegerType()))
+            df_source = first_df.withColumn("PERIODO_COMP",
+                                            when((col("TIPO_OPERAZIONE").startswith('__')),
+                                                 regexp_replace(col("TIPO_OPERAZIONE"), '__', '20').cast(IntegerType()))
                                             .otherwise((col("PERIODO_RIF")))) \
-                .withColumn("ID_PROCESSO", lit(self.etlRequest.processId)) \
                 .withColumn("COD_ID_UTENTE_RETT", lit(None).cast(StringType())) \
                 .withColumn("COD_ID_FILE_RETT", lit(self.id_file))
 
-            write_data_to_target(df_source=df_source, table=self.ingestion_table)
+            write_data_to_target(df_source=df_source, table=self.ingestion_table, process_id=self.etlRequest.processId)
             logging.info(f"End ingestion table {self.table}")
             return EtlResponse(processId=self.etlRequest.processId, status="OK")
 
@@ -96,10 +94,10 @@ class BuilderRectificationReadvc(BuilderRectificationDefault):
 
     def generaQueryInsert(self, list_value):
         query = f"insert into {self.ingestion_table} (BANCA, COD_UO, NUM_PARTITA, " \
-                                                        "PERIODO_RIF, PTF_SPECCHIO, PROVN, COD_PRODOTTO, " \
-                                                        "TIPO_OPERAZIONE, CANALE, " \
-                                                        "PRODOTTO_COMM, PORTAFOGLIO, DESK_RENDICONTATIVO, CODICE, " \
-                                                        "VALORE, PERIODO_COMP, " \
-                                                        "ID_PROCESSO, COD_ID_FILE_RETT) values "
+                "PERIODO_RIF, PTF_SPECCHIO, PROVN, COD_PRODOTTO, " \
+                "TIPO_OPERAZIONE, CANALE, " \
+                "PRODOTTO_COMM, PORTAFOGLIO, DESK_RENDICONTATIVO, CODICE, " \
+                "VALORE, PERIODO_COMP, " \
+                "ID_PROCESSO, COD_ID_FILE_RETT) values "
         dag = list(map(lambda t: componiStringa(t, self.etlRequest.processId, self.id_file), list_value))
         return query + ",".join(dag)
